@@ -18,9 +18,9 @@
 #include <vector>
 using namespace std;
 //Cada elemento que queramos renderear necesita un vertex array y un buffer
-vector<Vertice> triangulo;
-GLuint vertexArrayTrianguloID;
-GLuint bufferTrianguloID;
+vector<Vertice> arboles;
+GLuint vertexArrayArbolesID;
+GLuint bufferArbolesID;
 
 vector<Vertice> cuadrado;
 GLuint vertexArrayCuadradoID;
@@ -43,13 +43,13 @@ float piramideCafeBaseSombra_R = 0.8f,
 piramideCafeBaseSombra_G = 0.4f,
 piramideCafeBaseSombra_B = 0.1f;
 
-float pisoTierra_R = 0.97,
-pisoTierra_G = 0.858,
-pisoTierra_B = 0.619;
+float pisoTierra_R = 0.97f,
+pisoTierra_G = 0.858f,
+pisoTierra_B = 0.619f;
 
-float pisoPasto_R = 0.2,
-pisoPasto_G = 0.9,
-pisoPasto_B = 0.23;
+float pisoPasto_R = 0.2f,
+pisoPasto_G = 0.9f,
+pisoPasto_B = 0.23f;
 
 void inicializarPiramide() {
 	//nivel 1
@@ -445,22 +445,27 @@ void inicializarPiramide() {
 	cuadrado.push_back(v68);
 }
 
-void inicializarTriangulo() {
+void inicializarArboles() {
 	Vertice v1 = {
-		vec3(0.0f,0.3f,0.0f),
-		vec4(0.8f,0.1f,0.0f,1.0f)
+		vec3(-1.0f,0.5f,0.0f),
+		vec4(0.2f,0.8f,0.2f,1.0f)
 	};
 	Vertice v2 = {
-		vec3(-0.3f,-0.3f,0.0f),
-		vec4(0.8f,0.1f,0.0f,1.0f)
+		vec3(1.0f,0.5f,0.0f),
+		vec4(0.2f,0.8f,0.2f,1.0f)
 	};
 	Vertice v3 = {
-		vec3(0.3f,-0.3f,0.0f),
-		vec4(0.8f,0.1f,0.0f,1.0f)
+		vec3(1.0f,-1.0f,0.0f),
+		vec4(0.2f,0.8f,0.2f,1.0f)
 	};
-	triangulo.push_back(v1);
-	triangulo.push_back(v2);
-	triangulo.push_back(v3);
+	Vertice v4 = {
+		vec3(-1.0f, -1.0f, 0.0f),
+		vec4(0.2f,0.8f,0.2f,1.0f)
+	};
+	arboles.push_back(v1);
+	arboles.push_back(v2);
+	arboles.push_back(v3);
+	arboles.push_back(v4);
 }
 
 void inicializarSuelo() {
@@ -491,9 +496,9 @@ void dibujar() {
 	//Elegir shader
 	shader->enlazar();
 	//Elegir el vertex array
-	glBindVertexArray(vertexArrayTrianguloID);
+	glBindVertexArray(vertexArrayArbolesID);
 	//Dibujar
-	glDrawArrays(GL_TRIANGLES, 0, triangulo.size());
+	glDrawArrays(GL_QUADS, 0, arboles.size());
 	//Proceso dibujo de Cuadrado
 	glBindVertexArray(vertexArrayCuadradoID);
 	glDrawArrays(GL_QUADS, 0, cuadrado.size());
@@ -541,7 +546,7 @@ int main()
 	const GLubyte* versionGL = glGetString(GL_VERSION);
 	cout << "Version OpenGL: " << versionGL;
 
-	inicializarTriangulo();
+	inicializarArboles();
 	inicializarPiramide();
 	inicializarSuelo();
 
@@ -553,20 +558,17 @@ int main()
 	colorID = glGetAttribLocation(shader->getID(), "color");
 
 	shader->desenlazar();
-	//Crear el vertex array del triangulo
-	glGenVertexArrays(1, &vertexArrayTrianguloID);
-	glBindVertexArray(vertexArrayTrianguloID);
-	//Vertex buffer
-	glGenBuffers(1, &bufferTrianguloID);
-	glBindBuffer(GL_ARRAY_BUFFER, bufferTrianguloID);
-	//Asociar datos al buffer
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertice) * triangulo.size(), triangulo.data(), GL_STATIC_DRAW);
-	//Habilitar atributos de shader
+
+	glGenVertexArrays(1, &vertexArrayArbolesID);
+	glBindVertexArray(vertexArrayArbolesID);
+	glGenBuffers(1, &bufferArbolesID);
+	glBindBuffer(GL_ARRAY_BUFFER, bufferArbolesID);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertice) * arboles.size(), arboles.data(), GL_STATIC_DRAW);
 	glEnableVertexAttribArray(posicionID);
 	glEnableVertexAttribArray(colorID);
-	//Especificar a OpenGL como comunicarse
 	glVertexAttribPointer(posicionID, 3, GL_FLOAT, GL_FALSE, sizeof(Vertice), 0);
 	glVertexAttribPointer(colorID, 4, GL_FLOAT, GL_FALSE, sizeof(Vertice), (void*)sizeof(vec3));
+
 	//Proceso de inicializar Vertex Array para el cuadrado
 	glGenVertexArrays(1, &vertexArrayCuadradoID);
 	glBindVertexArray(vertexArrayCuadradoID);
